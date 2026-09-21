@@ -1,0 +1,32 @@
+{
+  "name": "web-automation-tests",
+  "version": "1.0.0",
+  "description": "Web automation testing with Playwright + TypeScript",
+  "private": true,
+  "scripts": {
+    "bddgen": "bddgen",
+    "test": "node scripts/run-with-reports.js",
+    "test:headed": "bddgen && playwright test --headed",
+    "test:ui": "bddgen && playwright test --ui",
+    "test:debug": "bddgen && playwright test --debug",
+    "report": "playwright show-report",
+    "report:allure": "allure generate allure-results -o allure-report --clean && allure open allure-report",
+    "allure:generate": "allure generate allure-results -o allure-report --clean",
+    "allure:open": "allure open allure-report",
+    "codegen": "playwright codegen",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@faker-js/faker": "^10.6.0",
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^26.6.2",
+    "allure-commandline": "^2.46.1",
+    "allure-playwright": "^3.12.2",
+    "playwright-bdd": "^9.2.1",
+    "typescript": "^7.0.2"
+  }
+}
