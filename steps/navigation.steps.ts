@@ -134,9 +134,23 @@ When('I check the {string} filter', async ({ page, state }, key: string) => {
 When('I favorite the first question', async ({ page, state }) => {
   const star = bookmarkButtons(page).first();
   state.starBefore = (await star.getAttribute('aria-pressed')) ?? (await star.innerText());
-  // The card's stretched-link overlay covers the button and intercepts pointer
-  // events, so a regular click is refused — force it like the site's own handler does
-  await star.click({ force: true });
+  // The card's stretched-link overlay covers the button, so real mouse clicks
+  // (even forced) land on the link and navigate away. Dispatch the click
+  // directly on the element instead — no hit-testing involved. A click
+  // swallowed pre-hydration leaves state unchanged, so allow spaced retries
+  // (rapid re-clicking would oscillate the toggle).
+  const readState = async () =>
+    (await star.getAttribute('aria-pressed').catch(() => null)) ?? (await star.innerText().catch(() => ''));
+  for (let attempt = 0; attempt < 3; attempt++) {
+    await star.evaluate((el: HTMLButtonElement) => el.click()).catch(() => {});
+    try {
+      await expect.poll(readState, { timeout: 8000 }).not.toBe(state.starBefore);
+      return;
+    } catch {
+      // state unchanged — likely swallowed, retry once settled
+    }
+  }
+  throw new Error('Favorite toggle did not change state after 3 attempts');
 });
 
 Then('only matching questions should be listed', async ({ page }) => {
